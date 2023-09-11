@@ -121,11 +121,14 @@ function initEvents(namer) {
   });
 
   $('input').on("change", (e) => {
+    let searchParams = new URLSearchParams(window.location.search);
+
     if(e.target.className === "book")
       return;
-
-    let searchParams = new URLSearchParams(window.location.search)
-    searchParams.set(e.target.name, e.target.value);
+    else if(e.target.name === "deduplicate")
+      searchParams.set(e.target.name, e.target.checked);
+    else
+      searchParams.set(e.target.name, e.target.value);
     history.replaceState(null, null, "?"+searchParams.toString());
   });
 
@@ -138,11 +141,13 @@ function initEvents(namer) {
     const fixedName = sel('input[name="fixed-name"]').value;
     const nameAmount = sel('input[name="gen-number"]').value;
     const localAvoidChars = sel('input[name="avoid-chars"]').value;
+    const deduplicate = sel('input[name="deduplicate"]').checked;
 
     const html = [];
 
     let i = 0;
     let totalTry = 0;
+    let names = new Set([]);
     while (totalTry<=maxTry && i <nameAmount)
     {
       totalTry++;
@@ -151,6 +156,10 @@ function initEvents(namer) {
       if (nameObj === null){
         continue;
       }
+      if(deduplicate && names.has(nameObj["name"])){
+        continue;
+      }
+      names.add(nameObj["name"]);
 
       i++;
       html.push(genNameHtml(nameObj));
@@ -167,13 +176,15 @@ function main() {
   const fixedName = searchParams.get("fixed-name") || ""
   const localAvoidChars = searchParams.get("avoid-chars") || ""
   const genNumber = searchParams.get("gen-number") || 20
+  const deduplicate = searchParams.get("deduplicate") || "true"
 
   const namer = new Namer(badChars, avoidChars);
   sel('input[name="family-name"]').value = familyName;
   sel('input[name="fixed-name"]').value = fixedName;
   sel('input[name="avoid-chars"]').value = localAvoidChars;
   sel('input[name="gen-number"]').value = genNumber;
-  // namer.loadBook('shijing');
+  sel('input[name="deduplicate"]').checked = (deduplicate == "true");
+
   createBooksCheckBoxes();
   loadBooks(namer);
   // initFirstBook();
