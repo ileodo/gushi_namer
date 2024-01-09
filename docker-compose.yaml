@@ -1,0 +1,8 @@
+version: "3.3"
+services:
+  wedding:
+    image: gitea.hc.ileodo.com/leodong/gushi_namer:local
+    build: .
+    container_name: gushi_namer
+    ports:
+      - 8081:8081

@@ -1,0 +1,12 @@
+{
+  "name": "gushi_namer_server",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "http": "^0.0.1-security",
+    "mimetype": "^0.0.8"
+  }
+}
