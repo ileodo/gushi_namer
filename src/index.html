@@ -19,11 +19,16 @@
       <p class="family">
         <label for='family-name'>姓氏 </label>
         <input type="text" name="family-name" value="李" placeholder="输入姓氏">
+        <label for='fixed-name'>固定字 </label>
         <input type="text" name="fixed-name" value="" placeholder="输入固定字">
       </p>
-      <p class="avoid">
-        <label for='family-name'>避免字 </label>
+      <p class="configs">
+        <label for='avoid-chars'>避免字 </label>
         <input type="text" name="avoid-chars" value="" placeholder="输入避免的字">
+        <label for='gen-number'>生成数量 </label>
+        <input type="number" name="gen-number" value="20" placeholder="生成数量">
+        <label for='gen-number'>避免重复 </label>
+        <input type="checkbox" name="deduplicate" value="true" placeholder="避免重复">
       </p>
       <button class='btn-go'>起名</button>
     </div>
@@ -39,7 +44,9 @@
           <p class="author">[春秋]佚名</p>
         </li> -->
       </ul>
-
+    </div>
+    <div class="input-container">
+      <button id="go-to-top">Go to top</button>
     </div>
     <div class="loader">
       <svg version="1.1" id="L6" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px"
@@ -69,16 +76,6 @@
         </circle>
       </svg> -->
     </div>
-
-    <p>
-    <div>
-      本项目全部开源, 原作者:holynova
-    </div>
-    <a target='_blank' href='https://github.com/holynova/gushi_namer' alt='https://github.com/holynova/gushi_namer'>
-      fork me on Github
-    </a>
-    </p>
-    <!-- <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.5.1/jquery.min.js"></script> -->
   </div>
 </body>
 

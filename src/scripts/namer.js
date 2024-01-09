@@ -39,15 +39,12 @@ class Namer {
     return str.replace(puncReg, '');
   }
 
-  cleanBadChar(str) {
-    return str.split('').filter(char => this.badChars.indexOf(char) === -1).join('');
+  cleanChar(str, charSet) {
+    return str.split('').filter(char => charSet.indexOf(char) === -1).join('');
   }
 
-  cleanAvoidChar(str) {
-    return str.split('').filter(char => this.avoidChars.indexOf(char) === -1).join('');
-  }
 
-  genName(fixed) {
+  genName(fixed, avoidChars) {
 
     if (!this.activeBook) {
       return null;
@@ -75,9 +72,12 @@ class Namer {
         return sent.includes(fixed);
       }));
 
+      let removeCharSet = [...this.badChars];
+      removeCharSet.push(...this.avoidChars);
+      removeCharSet.push(...avoidChars.split(''));
 
-      const cleanSentence = this.cleanAvoidChar(this.cleanBadChar(this.cleanPunctuation(sentence)));
-      debugger;
+      const cleanSentence = this.cleanChar(this.cleanPunctuation(sentence),removeCharSet);
+
       if (cleanSentence.length <= 2) {
         return null;
       }
@@ -154,15 +154,6 @@ class Namer {
       cb(this.activeBook);
     }
     log(`active book updated with fixed="${fixed}", number of records = ${this.activeBook.length}`)
-  }
-
-  updateAvoidChars(avoidChars, cb){
-    this.avoidChars = avoidChars.split('');
-    if (typeof cb === 'function') {
-      cb(this.activeBook);
-    }
-    log(`avoidChars got updated to "${this.avoidChars}"`);
-
   }
 
 

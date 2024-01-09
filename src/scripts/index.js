@@ -4,7 +4,7 @@ import '../styles/radio.scss';
 import '../styles/style.scss';
 import Namer from './namer';
 import { log } from './debugTools';
-import { debugMode, defaultBooks, defaultFamilyName, nameAmount, badChars, maxTry } from './config'
+import { debugMode, defaultBooks, defaultFamilyName, badChars, avoidChars, maxTry } from './config'
   ;
 
 const sel = str => document.querySelector(str);
@@ -75,6 +75,7 @@ function createBooksCheckBoxes() {
     { value: 'yuefu', name: '乐府诗集' },
     { value: 'gushi', name: '古诗三百首' },
     { value: 'cifu', name: '著名辞赋' },
+    { value: 'custom', name: '自定义' },
   ];
 
   books.forEach((ele, index)=>{
@@ -110,15 +111,6 @@ function updateActiveBooks(namer) {
 }
 
 
-function updateAvoidChars(namer) {
-  const avoidChars = sel('input[name="avoid-chars"]').value;
-  setLoading();
-  namer.updateAvoidChars(avoidChars, () => {
-    clearLoading();
-  });
-}
-
-
 function initEvents(namer) {
   $('input[name=\'book\']').on("change", (e) => {
     loadBooks(namer);
@@ -128,27 +120,46 @@ function initEvents(namer) {
     updateActiveBooks(namer);
   });
 
+  $('input').on("change", (e) => {
+    let searchParams = new URLSearchParams(window.location.search);
 
-  $('input[name=\'avoid-chars\']').on("change", (e) => {
-    updateAvoidChars(namer);
+    if(e.target.className === "book")
+      return;
+    else if(e.target.name === "deduplicate")
+      searchParams.set(e.target.name, e.target.checked);
+    else
+      searchParams.set(e.target.name, e.target.value);
+    history.replaceState(null, null, "?"+searchParams.toString());
   });
 
+  $('#go-to-top').on("click", (e) => {
+    window.scrollTo(0,0);
+  });
 
   sel('.btn-go').addEventListener('click', () => {
     setLoading();
     const fixedName = sel('input[name="fixed-name"]').value;
+    const nameAmount = sel('input[name="gen-number"]').value;
+    const localAvoidChars = sel('input[name="avoid-chars"]').value;
+    const deduplicate = sel('input[name="deduplicate"]').checked;
+
     const html = [];
 
     let i = 0;
     let totalTry = 0;
+    let names = new Set([]);
     while (totalTry<=maxTry && i <nameAmount)
     {
       totalTry++;
 
-      const nameObj = namer.genName(fixedName.trim());
+      const nameObj = namer.genName(fixedName.trim(), localAvoidChars.trim());
       if (nameObj === null){
         continue;
       }
+      if(deduplicate && names.has(nameObj["name"])){
+        continue;
+      }
+      names.add(nameObj["name"]);
 
       i++;
       html.push(genNameHtml(nameObj));
@@ -160,10 +171,20 @@ function initEvents(namer) {
 
 
 function main() {
-  const avoidChars = sel('input[name="avoid-chars"]').value;
+  let searchParams = new URLSearchParams(window.location.search)
+  const familyName = searchParams.get("family-name") || defaultFamilyName
+  const fixedName = searchParams.get("fixed-name") || ""
+  const localAvoidChars = searchParams.get("avoid-chars") || ""
+  const genNumber = searchParams.get("gen-number") || 20
+  const deduplicate = searchParams.get("deduplicate") || "true"
+
   const namer = new Namer(badChars, avoidChars);
-  sel('input[name="family-name"]').value = defaultFamilyName;
-  // namer.loadBook('shijing');
+  sel('input[name="family-name"]').value = familyName;
+  sel('input[name="fixed-name"]').value = fixedName;
+  sel('input[name="avoid-chars"]').value = localAvoidChars;
+  sel('input[name="gen-number"]').value = genNumber;
+  sel('input[name="deduplicate"]').checked = (deduplicate == "true");
+
   createBooksCheckBoxes();
   loadBooks(namer);
   // initFirstBook();
@@ -176,7 +197,7 @@ function test() {
   const logStr = (str) => {
     log(`'${str}'`);
   };
-  const n = new Namer(badChars, "");
+  const n = new Namer(badChars, avoidChars);
   const inputs = [
     '<p>习习谷风，以阴以雨。黾勉同心，不宜有怒。采葑采菲，无以下体？德音莫违，及尔同死。</p>',
     ' 记得年时临上马看人眼泪汪汪',
