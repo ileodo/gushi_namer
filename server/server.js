@@ -2,9 +2,11 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 const mimetype = require('mimetype');
+const url = require('url');
 
 const server = http.createServer((req, res) => {
-  const filePath = path.join(path.resolve(__dirname, '..'), 'dist', req.url === '/' ? 'index.html' : req.url);
+  const parsedUrl = url.parse(req.url, true);
+  const filePath = path.join(path.resolve(__dirname, '..'), 'dist', parsedUrl.pathname === '/' ? 'index.html' : parsedUrl.pathname);
 
   fs.readFile(filePath, 'utf8', (err, content) => {
     if (err) {

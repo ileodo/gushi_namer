@@ -1,8 +1,6 @@
 # Use the official Node.js base image
 FROM node:20-alpine as builder
 
-ENV NODE_ENV=production
-
 # Set the working directory in the container
 WORKDIR /usr/src/app
 
